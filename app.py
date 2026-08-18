@@ -8,11 +8,13 @@ from urllib.parse import quote
 from flask import Flask, jsonify, redirect, request, send_file
 from werkzeug.exceptions import BadRequest, RequestEntityTooLarge
 
-from report_engine import ReportError, build_report, parse_docx
-
-
 MAX_REQUEST_BYTES = 4 * 1024 * 1024
 MAX_FILES = 8
+
+
+class RequestError(ValueError):
+    pass
+
 
 app = Flask(__name__, static_folder=None)
 app.config["MAX_CONTENT_LENGTH"] = MAX_REQUEST_BYTES
@@ -43,26 +45,30 @@ def health():
 
 @app.post("/api/parse")
 def parse_reports():
+    import report_engine
+
     files = request.files.getlist("files")
     if not files:
-        raise ReportError("请选择至少一份 Word 报告")
+        raise RequestError("请选择至少一份 Word 报告")
     if len(files) > MAX_FILES:
-        raise ReportError(f"一次最多上传 {MAX_FILES} 份报告")
+        raise RequestError(f"一次最多上传 {MAX_FILES} 份报告")
 
     results = []
     for uploaded in files:
         filename = Path(uploaded.filename or "").name
         content = uploaded.read()
         try:
-            data = parse_docx(content, filename)
+            data = report_engine.parse_docx(content, filename)
             results.append({"filename": filename, "ok": True, "data": data})
-        except ReportError as exc:
+        except report_engine.ReportError as exc:
             results.append({"filename": filename, "ok": False, "error": str(exc)})
     return jsonify(files=results)
 
 
 @app.post("/api/generate")
 def generate_report():
+    import report_engine
+
     payload = request.get_json(force=False, silent=False)
     school = payload.get("school", "")
     year = payload.get("year")
@@ -72,7 +78,10 @@ def generate_report():
 
     with tempfile.TemporaryDirectory(prefix="school-report-download-") as temp:
         output = Path(temp) / filename
-        build_report(school, year, datasets, output)
+        try:
+            report_engine.build_report(school, year, datasets, output)
+        except report_engine.ReportError as exc:
+            raise RequestError(str(exc)) from exc
         body = output.read_bytes()
 
     response = send_file(
@@ -85,7 +94,7 @@ def generate_report():
     return response
 
 
-@app.errorhandler(ReportError)
+@app.errorhandler(RequestError)
 def handle_report_error(error):
     return jsonify(error=str(error)), 400
 
