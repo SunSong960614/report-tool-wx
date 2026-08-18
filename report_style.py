@@ -12,12 +12,10 @@ from docx.oxml.ns import qn
 from docx.shared import Inches, Pt, RGBColor
 
 
-ROOT = Path(r"C:\Users\PC\Documents\Codex\2026-08-18\new-chat")
+ROOT = Path(__file__).resolve().parent
 WORK = ROOT / "work"
 OUT = ROOT / "outputs"
 CHARTS = WORK / "charts"
-OUT.mkdir(parents=True, exist_ok=True)
-CHARTS.mkdir(parents=True, exist_ok=True)
 OUTPUT = OUT / "XXX学校学生素养测评数据分析报告.docx"
 
 NAVY = "17365D"
@@ -494,6 +492,8 @@ def age_section(doc, dataset, part_no, chart_file):
 
 
 def main():
+    OUT.mkdir(parents=True, exist_ok=True)
+    CHARTS.mkdir(parents=True, exist_ok=True)
     make_charts()
     doc = setup_document()
     add_cover(doc)
