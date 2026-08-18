@@ -32,7 +32,7 @@ class Handler(SimpleHTTPRequestHandler):
     server_version = "SchoolReportTool/1.0"
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory=str(APP_DIR / "static"), **kwargs)
+        super().__init__(*args, directory=str(APP_DIR / "public"), **kwargs)
 
     def end_headers(self):
         self.send_header("X-Content-Type-Options", "nosniff")

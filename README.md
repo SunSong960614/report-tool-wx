@@ -20,3 +20,7 @@
 - `HOST`：监听地址，本地默认 `127.0.0.1`，容器中设为 `0.0.0.0`
 - `MAX_CONCURRENT_REQUESTS`：同时处理的请求数，默认 `2`
 - `REPORT_FONT_REGULAR`、`REPORT_FONT_BOLD`：可选的中文字体文件路径
+
+## Vercel 部署
+
+Vercel 使用根目录的 `app.py` 作为 Flask 入口，静态文件位于 `public/`。受 Vercel Function 请求体限制，线上版单次上传文件合计不得超过 4MB。

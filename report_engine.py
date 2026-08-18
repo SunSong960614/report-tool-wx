@@ -157,9 +157,11 @@ def validate_request(school: str, year: Any, datasets: list[dict[str, Any]]) -> 
 
 
 def _fonts():
+    bundled_fonts = Path(__file__).with_name("fonts")
     regular_candidates = [
         Path(value) for value in [
             os.environ.get("REPORT_FONT_REGULAR", ""),
+            str(bundled_fonts / "NotoSansCJKsc-Regular.otf"),
             r"C:\Windows\Fonts\msyh.ttc",
             "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
             "/usr/share/fonts/opentype/noto/NotoSansCJKsc-Regular.otf",
@@ -168,6 +170,7 @@ def _fonts():
     bold_candidates = [
         Path(value) for value in [
             os.environ.get("REPORT_FONT_BOLD", ""),
+            str(bundled_fonts / "NotoSansCJKsc-Bold.otf"),
             r"C:\Windows\Fonts\msyhbd.ttc",
             "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",
             "/usr/share/fonts/opentype/noto/NotoSansCJKsc-Bold.otf",
