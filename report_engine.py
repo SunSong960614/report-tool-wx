@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import importlib.util
 import os
 import re
 import tempfile
@@ -13,14 +12,7 @@ from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml.ns import qn
 
-
-ROOT = Path(__file__).resolve().parents[1]
-LOCAL_STYLE_PATH = Path(__file__).with_name("report_style.py")
-STYLE_PATH = LOCAL_STYLE_PATH if LOCAL_STYLE_PATH.exists() else ROOT / "work" / "build_report.py"
-_spec = importlib.util.spec_from_file_location("report_style", STYLE_PATH)
-style = importlib.util.module_from_spec(_spec)
-assert _spec and _spec.loader
-_spec.loader.exec_module(style)
+import report_style as style
 
 
 class ReportError(ValueError):
